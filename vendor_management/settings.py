@@ -91,33 +91,18 @@ WSGI_APPLICATION = 'vendor_management.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get("POSTGRES_NAME"),
-#         'USER': os.environ.get("POSTGRES_USER"),
-#         'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-#         'HOST': os.environ.get("POSTGRES_HOST"),
-#         'PORT': '5432',
-#         'ATOMIC_REQUESTS': True,
-#     }
-# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "vendor_management",
-        'USER': "postgres",
-        'PASSWORD': "admin",
-        'HOST': "localHost",
+        'NAME': os.environ.get("POSTGRES_NAME"),
+        'USER': os.environ.get("POSTGRES_USER"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("POSTGRES_HOST"),
         'PORT': '5432',
         'ATOMIC_REQUESTS': True,
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
