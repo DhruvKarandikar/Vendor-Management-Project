@@ -11,7 +11,7 @@ class CommonPurchaseOrder(AddCommonField):
     order_date = models.DateTimeField(null=False)
     delivery_date = models.DateTimeField(null=False)
     items = models.JSONField(null=False)
-    quantity = models.IntegerField(null=True)
+    quantity = models.PositiveIntegerField(null=True)
     current_status = models.IntegerField(null=False)
     quality_rating = models.IntegerField(null=True)
     issue_date = models.DateTimeField(null=True)

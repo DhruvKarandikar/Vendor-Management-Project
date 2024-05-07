@@ -45,7 +45,7 @@ class HeadVendorDetailSerializer(serializers.ModelSerializer):
 
 
     def to_representation(self, data):
-        data = super(HeadVendorDetailSerializer).to_representation(data)
+        data = super().to_representation(data)
         return data
 
     @atomic
@@ -82,17 +82,17 @@ class VendorDetailCrudResponseSerializer(serializers.Serializer):
 class GetVendorDetailRequestSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(required=False)
-    search_object = serializers.ListField(required=True, help_text=search_by_object)
+    search_object = serializers.CharField(required=True, help_text=search_by_object)
 
     class Meta:
         model = VendorDetail
         fields = ("id", "search_object",)
     
-    def validate_search_object(self, value):
-        if value:
-            for val in value:
-                common_checking_and_passing_value_from_list_dict(val, search_by_object, search_obj_invalid)
-            return value
+    # def validate_search_object(self, value):
+    #     if value:
+    #         for val in value:
+    #             common_checking_and_passing_value_from_list_dict(val, search_by_object, search_obj_invalid)
+    #         return value
 
 
 

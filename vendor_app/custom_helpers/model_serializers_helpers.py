@@ -266,7 +266,9 @@ def help_text_for_dict(dict_value):
     return f'Enter value from this list - {list(dict_value.keys())}'
 
 
-def get_datetime_to_str(datetime_obj, format, idx=0, format_type=COMMON_CHECK_FORMAT_TYPE[DATE_FORMAT]): 
+def get_datetime_to_str(datetime_obj, format, idx=0, format_type=COMMON_CHECK_FORMAT_TYPE[DATE_FORMAT]):
+    from datetime import datetime
+    
     if datetime_obj:
         if 'T' in datetime_obj:
             date = datetime_obj.split("T")[idx] 

@@ -90,7 +90,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'vendor_management.wsgi.application'
 
 
-# Database
+# Database Connection
 
 DATABASES = {
     'default': {
