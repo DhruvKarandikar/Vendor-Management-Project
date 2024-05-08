@@ -1,0 +1,42 @@
+The API are made User Interactive using swagger settings
+
+After Running the Server go to the default browser url = "http://127.0.0.1:8000/v1/vendor_management/swagger/" for interacting with the API
+
+There are mainly 7 API made reducing the risk of vulnerability:
+
+Api interacting with Purchase Order model
+  
+- /purchase/delete_purchase_order
+- /purchase/get_purchase_order # GET API
+- /purchase/purchase_order # create update API
+
+Api interacting with vendor and performance model
+  
+- /vendor_app/get_vendor # GET API
+- /vendor_app/get_vendor_performance
+- /vendor_app/vendor # create update  API
+- /vendor_app/vendor_delete
+
+Models:
+  - Status: This is to signify where the object is active: 1 or inactive: 0. After deleting the objects they are marked inactive in the DB without deleting the entry
+  - creation_date: when object is created date time is stored
+  - creation_by: when object is created which user created its name is stored
+  - updation_date: when was object is updated its time is stored
+  - updation by: when object is updated by which user its name is stored
+
+All the API are made Post and Url are not Hardcoded due the reason of being brittleness and less readability causing problems in production as well as local environment
+
+In create updating the API all fields are must to be sent according to the models only nullable fields are not allowed to be send empty 
+When creating the object ID field is to removed as the API service will automatically create the ID 
+While Updating an object ID Fields is required for the field to update an object in the create update API or else it will create New objects and entries in the database
+Avoided making aknowledge endpoints as they are covered up with the Create update API in purchase
+
+The modification in the GET API
+- All the get api have a request of id and search object in it. The search Object is provided to make Database less troubled Avoiding DB Lock
+- In Get API search object have 2 things single and ALL. As single with ID will give out return 1 object while using ALL will give all the objects present in DB.
+- In get API after deleting the object they are returned empty to the API but present in DB having status = 0, the delete objects will return when 'all' is used
+  
+Delete API: 
+- Request of Delete API consists of only ID in request it will make status active = 0 (Custom Models fields are used to log time & date, with status having 1 and 0 only).
+
+
