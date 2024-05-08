@@ -2,9 +2,8 @@ from rest_framework import serializers
 from django.db.models import Q
 from vendor_app.models import *
 from django.db.transaction import atomic
-from vendor_app.services.purchase_service import purchase_create_update_service_serializer
 from vendor_app.custom_helpers.model_serializers_helpers import dict_get_key_from_value, help_text_for_dict, get_datetime_to_str, \
-            common_checking_and_passing_value_from_list_dict, CustomExceptionHandler
+            common_checking_and_passing_value_from_list_dict, CustomExceptionHandler, comman_create_update_services
 from vendor_app.custom_helpers.consts import *
 from vendor_app.custom_helpers.status_code import *
 
@@ -29,6 +28,11 @@ class HeadPurchaseOrderSerializer(serializers.ModelSerializer):
     
     def to_internal_value(self, data):
         return super().to_internal_value(data)
+
+    def validate(self, data):
+        data = super().validate(data)
+        return {key: value for key, value in data.items() if value is not None}
+
     
     def to_representation(self, data):
         data = super().to_representation(data)
@@ -49,29 +53,44 @@ class HeadPurchaseOrderSerializer(serializers.ModelSerializer):
 
     @atomic
     def create(self, validated_data):
-        return purchase_create_update_service_serializer(validated_data)
+        return (validated_data)
 
     @atomic
     def update(self, instance, validated_data):
-        return purchase_create_update_service_serializer(instance, validated_data)
+        return (instance, validated_data)
 
 class PurchaseOrderRequestSerailizer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(required=False)
-    vendor_id = serializers.IntegerField(required=True)
-    po_number = serializers.CharField(required=True)
-    order_date = serializers.DateTimeField(required=True)
-    delivery_date = serializers.DateTimeField(required=True)
-    items = serializers.JSONField(required=True)
+    vendor_id = serializers.IntegerField(required=False)
+    po_number = serializers.CharField(required=False)
+    order_date = serializers.DateTimeField(required=False)
+    delivery_date = serializers.DateTimeField(required=False)
+    items = serializers.JSONField(required=False)
     quantity = serializers.IntegerField(required=False)
-    current_status = serializers.IntegerField(required=False, help_text=help_text_for_dict(current_status_po))
-    quality_rating = serializers.IntegerField(required=False)
+    current_status = serializers.CharField(required=False, help_text=help_text_for_dict(current_status_po))
+    quality_rating = serializers.FloatField(required=False)
     issue_date = serializers.DateTimeField(required=False)
     acknowledgment_date = serializers.DateTimeField(required=False)
 
     class Meta:
         model = PurchaseOrder
         exclude = ("status", "creation_date", "creation_by", "updation_date", "updation_by",)
+
+    def validate_current_status(self, value):
+        return common_checking_and_passing_value_from_list_dict(value, current_status_po, invalid_request_current_status)
+
+    def validate(self, data):
+        data = super().validate(data)
+        return {key: value for key, value in data.items() if value is not None}
+    
+    @atomic
+    def create(self, validated_data):
+        return comman_create_update_services(self, validated_data)
+
+    @atomic
+    def update(self, instance, validated_data):
+        return comman_create_update_services(self, validated_data, instance)
 
 class PuchaseOrderReponseCreateUpdateSerializer(serializers.Serializer):
     status = serializers.IntegerField(help_text = "Status Code", required = False)
@@ -96,9 +115,6 @@ class PurchaseOrderGetRequestSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
 
-        # import pdb
-        # pdb.set_trace()
-
         data = super().validate(data)
 
         id = data.get('id', None)
@@ -118,13 +134,6 @@ class PurchaseOrderGetRequestSerializer(serializers.ModelSerializer):
             raise CustomExceptionHandler(invalid_request_purchase_order)
 
         return data
-
-
-    # def validate_search_object(self, value):
-    #     if value:
-    #         for val in value:
-    #             common_checking_and_passing_value_from_list_dict(val, search_by_object, search_obj_invalid)
-    #         return value
 
 
 class GetPurchaseOrderResponseSerializer(serializers.Serializer):

@@ -1,6 +1,7 @@
 from vendor_app.custom_helpers.status_code import *
 from vendor_app.custom_helpers.model_serializers_helpers import CustomExceptionHandler
 from vendor_app.models import *
+from vendor_app.custom_helpers.model_serializers_helpers import create_update_model_serializer
 
 def get_vendor_performance_service(request_data): 
     from vendor_app.serializers.vendor_serializer import HeadVendorPerformanceSerializer
@@ -55,9 +56,27 @@ def get_vendor_detail_service(request_data):
 
 
 def vendor_detail_create_update_service(request_data):
-    return
+    from vendor_app.serializers.vendor_serializer import VendorDetailCreateUpdateSerializer, HeadVendorPerformanceSerializer, HeadVendorDetailSerializer
+    # from vendor_app.serializers.purchase_serializer import HeadPurchaseOrderSerializer
 
+    vendor_performance_list = request_data.pop('vendor_performances', [])
+    # vendor_purchase_list = request_data.pop('vendor_purchase_order', [])
 
-def vendor_create_update_service_serializer():
-    pass
+    final_data = {}
+
+    instance_vendor_detail = create_update_model_serializer(HeadVendorDetailSerializer,request_data,partial=True)
+
+    if vendor_performance_list:
+
+        for performance in vendor_performance_list:
+            create_update_model_serializer(HeadVendorPerformanceSerializer, performance, partial=True, additional_data={'vendor_id': instance_vendor_detail.id})
+
+    # if vendor_purchase_list:
+    #     for purchase in vendor_purchase_list:
+    #         create_update_model_serializer(HeadPurchaseOrderSerializer, purchase, partial=True, additional_data={'vendor_id': instance_vendor_detail.id})
+
+    instance_vendor_detail_data = VendorDetailCreateUpdateSerializer(instance_vendor_detail).data
+    final_data.update(instance_vendor_detail_data)
+
+    return get_response(success, data=final_data)
 

@@ -19,7 +19,7 @@ logger = logging.getLogger("django")
 @csrf_exempt
 @swagger_auto_schema(
     methods=['post'],
-    request_body=PurchaseOrderRequestSerailizer,
+    request_body=PurchaseOrderRequestSerailizer(many=True),
     responses={"200": PuchaseOrderReponseCreateUpdateSerializer},
     operation_id="Purchase Order Create Update"
 )
@@ -28,8 +28,8 @@ def purchase_order_create_update(request):
     response_obj = None
 
     try:
-        logger.info(request, "request for purchase order update or create")
-        response_obj = purchase_create_update_service(request)
+        logger.debug(f"{request.data}, request for purchase order update or create")
+        response_obj = purchase_create_update_service(request.data)
 
     except CustomExceptionHandler as e:
         logger.exception(f"Custom Exception in purchase order url: {e}")

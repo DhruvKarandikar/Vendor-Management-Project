@@ -1,6 +1,7 @@
 from django.db.models.query import QuerySet, Q
 from django.db import models
 from django.utils import timezone
+from rest_framework.serializers import ModelSerializer
 import datetime
 from functools import wraps
 from django.db import models
@@ -11,7 +12,65 @@ from vendor_app.custom_helpers.consts import *
 from typing import Any, Type
 from vendor_app.custom_helpers.jwt_token import get_request
 from vendor_app.custom_helpers.status_code import *
+import logging
 
+logger = logging.getLogger('django')
+
+def get_model_data(modelName, q_parameter, error_code_1, error_code_2, no_obj_flag=False, multiple_obj_flag=False):
+    try:
+        return modelName.objects.get(q_parameter)
+    except modelName.MultipleObjectsReturned as e:
+        if multiple_obj_flag is True:
+            return modelName.objects.filter(q_parameter)
+        raise CustomExceptionHandler(error_code_1)
+    except modelName.DoesNotExist as e:
+        if no_obj_flag is True:
+            return None
+        raise CustomExceptionHandler(error_code_2)
+
+def create_update_model_serializer(model_serializer: ModelSerializer, data: dict, additional_data: dict = {}, partial=False):
+
+    """
+    Mainly it performs  create and update   functions 
+    This function takes a model serializer, data, additional data, and a partial flag as input parameters.
+    It validates the data using the provided model serializer and returns the instance if the data is valid.
+    Returns:
+    - instance: The instance of the model if the data is valid.
+
+    Raises:
+    - CustomExceptionHandler: If there is an error in the serializer.
+
+"""
+    id = data.get('id')
+    model = model_serializer.Meta.model
+    if id:
+        instance = get_model_data(model, Q(id=id), None, obj_not_found(id,model.__name__)) 
+        serializer = model_serializer(instance, data=data, partial=True, context=additional_data)
+    else:
+        serializer = model_serializer(data=data, partial=partial, context=additional_data)
+        
+    if not serializer.is_valid():
+        logger.error(f"error in serilizer is {serializer.errors}")
+        raise CustomExceptionHandler(error_in_serializer(model_serializer))
+    serializer.validated_data.update(additional_data)
+    instance=serializer.save()
+    return instance
+
+
+def comman_create_update_services(self, validated_data, instance = None):
+
+    if not instance:
+        instance = self.Meta.model.objects.create(**validated_data)
+
+    else:
+        updated_keys = []
+        for key, value in validated_data.items():
+            if value != None and key != 'id':
+                updated_keys.append(key)
+                setattr(instance, key, value)
+        instance.save(update_fields = updated_keys)
+
+    return instance
 
 
 def add_log_model(logModel, modelInstance, modelName, creation=False, status_change=False):

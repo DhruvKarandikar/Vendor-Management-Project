@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator
 class CommonVendorPerformance(AddCommonField):
 
     id = models.BigAutoField(primary_key=True) 
-    vendor = models.ForeignKey(to=VendorDetail, related_name='performance', on_delete=models.RESTRICT, null=False)
+    vendor = models.ForeignKey(to=VendorDetail, related_name='vendor_performance', on_delete=models.RESTRICT, null=False)
     date =  models.DateTimeField(null=False)
     on_time_delivery_rate =  models.IntegerField(null=False, validators=[MaxValueValidator(10000)])
     quality_rating_avg = models.IntegerField(null=False, validators=[MaxValueValidator(10000)])

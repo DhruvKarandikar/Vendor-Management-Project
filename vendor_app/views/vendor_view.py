@@ -78,7 +78,7 @@ def vendor_create_update(request):
 
     try:
         logger.info(request, "request for vendor create update")
-        response_obj = vendor_detail_create_update_service(request)
+        response_obj = vendor_detail_create_update_service(request.data)
 
     except CustomExceptionHandler as e:
         logger.exception(f"Custom Exception in vendor crud url: {e}")

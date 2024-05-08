@@ -18,6 +18,13 @@ invalid_request_pass_id = {STATUS_CODE: 2110011, MESSAGE: "ID is mandatory"}
 no_object_exist = {STATUS_CODE: 2110012, MESSAGE: "Object does not exists kindly enter valid Id"}
 invalid_request_purchase_order = {STATUS_CODE: 2110013, MESSAGE: "Please vendor id for accurate results not Id"}
 invalid_request_vendor_id = {STATUS_CODE: 2110014, MESSAGE: "Pass Id when list object is 'Single'"}
+invalid_request_current_status = {STATUS_CODE: 2110015, MESSAGE: "Please enter valid current status"}
+
+def obj_not_found(id,model):
+    return {'status_code': 2110016, 'message': f'id = {id} not exist in {model}'}
+
+def error_in_serializer(serializer_name):
+    return {'status_code': 2110017, 'message': f'error in serializer {serializer_name} '}
 
 def get_response(status_attribute, data=None):
     if data is None:

@@ -1,0 +1,1 @@
+from vendor_app.signals import *
