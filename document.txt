@@ -24,6 +24,11 @@ Models:
   - updation_date: when was object is updated its time is stored
   - updation by: when object is updated by which user its name is stored
 
+Models Modelfication with API's:
+
+The Models where Float fields are necessary are converted to interger fields and in API, the request is precessed with float values as an intake. The Logic here is handled on the basis of processing and memory size of the Database. The Logic will convert a float to int and will store the value in int while returning the API response the logic is handle to return the Float Value when the request was created.
+
+
 All the API are made Post and Url are not Hardcoded due the reason of being brittleness and less readability causing problems in production as well as local environment
 
 In create updating the API all fields are must to be sent according to the models only nullable fields are not allowed to be send empty 
