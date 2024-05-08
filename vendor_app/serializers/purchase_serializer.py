@@ -3,7 +3,7 @@ from django.db.models import Q
 from vendor_app.models import *
 from django.db.transaction import atomic
 from vendor_app.custom_helpers.model_serializers_helpers import dict_get_key_from_value, help_text_for_dict, get_datetime_to_str, \
-            common_checking_and_passing_value_from_list_dict, CustomExceptionHandler, comman_create_update_services
+            common_checking_and_passing_value_from_list_dict, CustomExceptionHandler, comman_create_update_services, number_to_decimal
 from vendor_app.custom_helpers.consts import *
 from vendor_app.custom_helpers.status_code import *
 
@@ -37,8 +37,11 @@ class HeadPurchaseOrderSerializer(serializers.ModelSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
 
-        data['order_date'] = get_datetime_to_str(data['order_date'], DATE_YYYY_MM_DD)
-        data['delivery_date'] = get_datetime_to_str(data['delivery_date'], DATE_YYYY_MM_DD)
+        if data.get('order_date'):
+            data['order_date'] = get_datetime_to_str(data['order_date'], DATE_YYYY_MM_DD)
+        
+        if data.get('delivery_date'):
+            data['delivery_date'] = get_datetime_to_str(data['delivery_date'], DATE_YYYY_MM_DD)
             
         if data['issue_date']:
             data['issue_date'] = get_datetime_to_str(data['issue_date'], DATE_YYYY_MM_DD)
@@ -48,6 +51,9 @@ class HeadPurchaseOrderSerializer(serializers.ModelSerializer):
         
         if data['current_status']:    
             data['current_status'] = dict_get_key_from_value(current_status_po, data['current_status'])
+        
+        if data.get('quality_rating'):
+            data["quality_rating"] = number_to_decimal(data["quality_rating"])
         
         return data
 
@@ -80,9 +86,37 @@ class PurchaseOrderRequestSerailizer(serializers.ModelSerializer):
     def validate_current_status(self, value):
         return common_checking_and_passing_value_from_list_dict(value, current_status_po, invalid_request_current_status)
 
+    def validate_quality_rating(self, value):
+        if value != None and value != "":
+            value = value * 100
+        return value
+
     def validate(self, data):
         data = super().validate(data)
         return {key: value for key, value in data.items() if value is not None}
+    
+    def to_representation(self, data):
+        data = super().to_representation(data)
+        
+        if data.get('order_date'):
+            data['order_date'] = get_datetime_to_str(data['order_date'], DATE_YYYY_MM_DD)
+        
+        if data.get('delivery_date'):
+            data['delivery_date'] = get_datetime_to_str(data['delivery_date'], DATE_YYYY_MM_DD)
+            
+        if data['issue_date']:
+            data['issue_date'] = get_datetime_to_str(data['issue_date'], DATE_YYYY_MM_DD)
+        
+        if data['acknowledgment_date']:
+            data['acknowledgment_date'] = get_datetime_to_str(data['acknowledgment_date'], DATE_YYYY_MM_DD)
+
+        if data.get('quality_rating'):
+            data["quality_rating"] = number_to_decimal(data["quality_rating"])
+
+        if data.get('current_status'):
+            data['current_status'] = dict_get_key_from_value(current_status_po, data['current_status'])
+
+        return data
     
     @atomic
     def create(self, validated_data):
@@ -132,6 +166,9 @@ class PurchaseOrderGetRequestSerializer(serializers.ModelSerializer):
         
         if search_by_object == 'all' and vendor_id and id:
             raise CustomExceptionHandler(invalid_request_purchase_order)
+
+        if search_by_object == 'all' and (vendor_id or id):
+            raise CustomExceptionHandler(invalid_request_for_all)
 
         return data
 

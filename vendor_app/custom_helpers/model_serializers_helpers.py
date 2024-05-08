@@ -313,6 +313,11 @@ def dict_get_key_from_value(dict_obj, dict_val):
             return None 
     except:
         return None
+
+def number_to_decimal(number_val):
+    if number_val is not None:
+        number_val = int(number_val) / 100
+    return number_val
     
 def help_text_for_dict(dict_value):
     """

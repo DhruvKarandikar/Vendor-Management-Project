@@ -3,7 +3,7 @@ from django.db.models import Q
 from vendor_app.models import *
 from django.db.transaction import atomic
 from vendor_app.custom_helpers.model_serializers_helpers import dict_get_key_from_value, help_text_for_dict, get_datetime_to_str, \
-            common_checking_and_passing_value_from_list_dict, comman_create_update_services
+            common_checking_and_passing_value_from_list_dict, comman_create_update_services, number_to_decimal, CustomExceptionHandler
 from vendor_app.custom_helpers.consts import *
 from vendor_app.custom_helpers.status_code import *
 
@@ -44,6 +44,23 @@ class HeadVendorPerformanceSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
         return {key: value for key, value in data.items() if value is not None}
+
+    def to_representation(self, data):
+        data = super().to_representation(data)
+
+        if data.get('on_time_delivery_rate'):
+            data['on_time_delivery_rate'] = number_to_decimal(data['on_time_delivery_rate'])
+        
+        if data.get('quality_rating_avg'):
+            data['quality_rating_avg'] = number_to_decimal(data['quality_rating_avg'])
+        
+        if data.get('average_response_time'):
+            data['average_response_time'] = number_to_decimal(data['average_response_time'])
+        
+        if data.get('fulfillment_rate'):
+            data['fulfillment_rate'] = number_to_decimal(data['fulfillment_rate'])
+        
+        return data
 
 
 class HeadVendorDetailSerializer(serializers.ModelSerializer):
@@ -86,10 +103,17 @@ class HeadVendorDetailSerializer(serializers.ModelSerializer):
     def to_representation(self, data):
         data = super().to_representation(data)
 
-        # data['on_time_delivery_rate'] = 
-        # data['quality_rating_avg'] = 
-        # data['average_response_time'] = 
-        # data['fulfillment_rate'] = 
+        if data.get('on_time_delivery_rate'):
+            data['on_time_delivery_rate'] = number_to_decimal(data['on_time_delivery_rate'])
+        
+        if data.get('quality_rating_avg'):
+            data['quality_rating_avg'] = number_to_decimal(data['quality_rating_avg'])
+        
+        if data.get('average_response_time'):
+            data['average_response_time'] = number_to_decimal(data['average_response_time'])
+        
+        if data.get('fulfillment_rate'):
+            data['fulfillment_rate'] = number_to_decimal(data['fulfillment_rate'])
         return data
     
     def validate(self, data):
@@ -115,7 +139,7 @@ class VendorDetailCreateUpdateSerializer(HeadVendorDetailSerializer):
         data = super().to_representation(data)
 
         vendor_id = data.get('id')
-        vendor_performance_obj = VendorPerformance.objects.filter(vendor_id=vendor_id)
+        vendor_performance_obj = VendorPerformance.objects.filter(vendor_id=vendor_id, status=STATUS_ACTIVE)
         vendor_performance_serializer = HeadVendorPerformanceSerializer(vendor_performance_obj, many=True)
         data['vendor_performances'] = vendor_performance_serializer.data
         return data
@@ -154,7 +178,15 @@ class GetVendorDetailRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorDetail
         fields = ("id", "search_object",)
+    
+    def validate(self, data):
+        
+        data = super().validate(data)
+        
+        if search_by_object == 'all' and id:
+            raise CustomExceptionHandler(invalid_request_for_all)
 
+        return data
 
 
 

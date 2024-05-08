@@ -93,13 +93,25 @@ WSGI_APPLICATION = 'vendor_management.wsgi.application'
 
 # Database Connection
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get("POSTGRES_NAME"),
+#         'USER': os.environ.get("POSTGRES_USER"),
+#         'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+#         'HOST': os.environ.get("POSTGRES_HOST"),
+#         'PORT': '5432',
+#         'ATOMIC_REQUESTS': True,
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_NAME"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("POSTGRES_HOST"),
+        'NAME': "vendor_management",
+        'USER': "postgres",
+        'PASSWORD': "admin",
+        'HOST': "localHost",
         'PORT': '5432',
         'ATOMIC_REQUESTS': True,
     }

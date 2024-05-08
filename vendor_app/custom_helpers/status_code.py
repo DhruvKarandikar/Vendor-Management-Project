@@ -26,6 +26,8 @@ def obj_not_found(id,model):
 def error_in_serializer(serializer_name):
     return {'status_code': 2110017, 'message': f'error in serializer {serializer_name} '}
 
+invalid_request_for_all = {STATUS_CODE: 2110015, MESSAGE: "Id's are not allowed with 'all key"}
+
 def get_response(status_attribute, data=None):
     if data is None:
         return {'status': status_attribute['status_code'], 'message': status_attribute['message']}
